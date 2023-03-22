@@ -1,0 +1,249 @@
+{{!-- SECCION DONDE INGRESO UN NUEVO CLIENTE Y SE MUESTRAN --}}
+<section class="container mt-5">
+
+   <section>
+    <h3>Ingresar Nuevo Pais</h3>
+    <form action="" class="text-center  " id="formulario">
+      <div class="row align-items-center">
+        <div class="col-4"><label>NOMBRE</label>
+          <input class="form-control" id="nombrePais" required />
+        </div>
+        <div class="col-4"><label>Pib_2019</label>
+          <input type="number"  class="form-control" id="pib2019" required />
+        </div>
+        <div class="col-4"><label>Pib_2019</label>
+          <input type="number" class="form-control" id="pib2020" required />
+        </div>
+        <div class="col-4 mt-2">
+          <button class="btn btn-success">AGREGAR</button>
+        </div>
+      </div>
+    </form>
+  </section>
+   <section class="container text-center  mb-5" style="color: #fff;"  >
+     <h3>Buscar por Rango de Pib 2020</h3>
+    <div class="row justify-content-start ">
+      <div class="col-2  ">
+        <label>Edad Minima</label>
+        <input class="form-control text-center" type="number" id="rangoMin">
+      </div>
+      <div class="col-2 ">
+        <label>Edad Maxima</label>
+        <input class="form-control text-center" type="number" id="rangoMax">
+      </div>
+        <div class="col-2 align-self-center">
+         <button class="btn btn-outline-warning" onclick="rangoPaises()">BUSCAR</button>
+      </div>
+    </div>
+      </section>
+     
+  <section class="mt-5"> 
+    <button class="btn btn-warning" onclick="pibAumento()">Paises con alza en PIB el 2020</button>
+    <button class="btn btn-warning" onclick="pibDisminuir()">Paises con baja en PIB el 2020</button>
+    <button class="btn btn-success" onclick="recargarPagina()">Todos los Paises</button>
+  
+  </section>
+  <table class="table mt-3" style="color: #fff;">
+    <thead class="text-center">
+      <tr>
+        <th scope="col">NOMBRE</th>
+        <th scope="col">PIB_2019</th>
+        <th scope="col">PIB_2020</th>
+        <th scope="col" id="campodisable" style="color:black">DIFERENCIA</th
+      
+      </tr>
+    </thead>
+    <tbody class="text-center border-danger" id="paisesCargados">
+    </tbody>
+  </table>
+ 
+  <script>
+    //////////Rango de paiseS
+const rangoPaises=()=>{
+  
+const rangoMin = document.getElementById("rangoMin").value
+const rangoMax = document.getElementById("rangoMax").value
+
+ addEventListener("click", (event) => {
+      event.preventDefault();
+      console.log(rangoMin,rangoMax)
+
+      fetch(`http://localhost:3000/rango/${rangoMin}/${rangoMax}`)
+  .then(response => response.json())
+  .then(response =>{clientesRangoEdad(response)})
+  .catch(err => console.error(err));
+      
+const clientesRangoEdad=(data)=>{
+let elementos=""
+ data.forEach((elem)=>{
+      
+   elementos+=
+`
+  <tr>
+      <td>${elem.nombre}</td>
+      <td>${elem.pib_2019}</td>
+       <td>${elem.pib_2020}</td>
+      
+
+    </tr>
+`
+
+    })
+       document.getElementById("paisesCargados").innerHTML=elementos
+       }
+})
+ 
+}
+    //////////
+//////////////////GET TODOS LOS PAISES
+      fetch("http://localhost:3000/", )
+  .then(response => response.json())
+  .then(response =>getPaises(response.rows))
+  .catch(err => console.error(err));
+
+  const getPaises=(data)=>{
+
+   let elementos=""
+    data.forEach((ele)=>{
+     
+   elementos+=
+`
+  <tr>
+      <td>${ele.nombre}</td>
+      <td>${ele.pib_2019}</td>
+       <td>${ele.pib_2020}</td>
+    
+     <th><button class="btn btn-danger" onclick="borrarPais('${ele.nombre}')">BORRAR</button></th>
+    
+
+    </tr>
+`
+
+    })
+       document.getElementById("paisesCargados").innerHTML=elementos
+
+  }
+
+  ////PIB AUMENTO
+
+  const pibAumento=()=>{
+const campodisable= document.getElementById("campodisable")
+ campodisable.style.color = 'white';
+addEventListener("click", (event) => {
+        event.preventDefault();
+         fetch("http://localhost:3000/pibaumento")
+  .then(response => response.json())
+  .then(response =>{paisesAumento(response.rows)})
+  .catch(err => console.error(err));
+               
+const paisesAumento=(data)=>{
+      console.log(data)
+let elementos=""
+ data.forEach((elem)=>{
+       
+   elementos+=
+`
+  <tr>
+      <td>${elem.nombre}</td>
+      <td>${elem.pib_2019}</td>
+      <td>${elem.pib_2020}</td>
+      <td>${elem.diference}</td>
+    
+
+
+
+    </tr>
+`
+
+    })
+       document.getElementById("paisesCargados").innerHTML=elementos
+       }
+})
+  }
+   ////PIB DIMINUIR
+
+  const pibDisminuir=()=>{
+const campodisable= document.getElementById("campodisable")
+ campodisable.style.color = 'white';
+addEventListener("click", (event) => {
+        event.preventDefault();
+         fetch("http://localhost:3000/pibdisminuir")
+  .then(response => response.json())
+  .then(response =>{paisesAumento(response.rows)})
+  .catch(err => console.error(err));
+               
+const paisesAumento=(data)=>{
+      console.log(data)
+let elementos=""
+ data.forEach((elem)=>{
+       
+   elementos+=
+`
+  <tr>
+      <td>${elem.nombre}</td>
+      <td>${elem.pib_2019}</td>
+      <td>${elem.pib_2020}</td>
+      <td>${elem.diference}</td>
+    
+
+     
+    
+
+    </tr>
+`
+
+    })
+       document.getElementById("paisesCargados").innerHTML=elementos
+       }
+})
+  }
+/////////////////////DELETE POR NOMBRE
+const borrarPais=(nombre)=>{
+  console.log(nombre)
+const options = {method: 'DELETE'};
+
+fetch('http://localhost:3000/paises/'+nombre, options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+       alert("ELIMINANDO")   
+            location.reload();   
+}
+
+  /////////////HACIENDO POST
+    const formulario = document.querySelector('#formulario')
+    formulario.addEventListener("submit", (event) => {
+        event.preventDefault();
+    const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        let nuevoPais = {
+            
+ 	    nombre:nombrePais.value,
+      pib_2019:pib2019.value,
+      pib_2020:pib2020.value,
+   
+        }
+
+        fetch("http://localhost:3000/creandopais", {
+            method: "post",
+            headers,
+            body: JSON.stringify(nuevoPais),
+            redirect: "follow"
+        })
+  .then(response => response.json())
+  .then(response =>  {alert(response.message)
+           formulario.reset();
+           location.reload();
+   
+  })
+
+    })
+
+//BOTON CARGAR PAISE
+const recargarPagina =()=>{
+addEventListener("click", (event) => {
+        event.preventDefault();
+window.location.reload()
+        })
+  }
+  </script>
